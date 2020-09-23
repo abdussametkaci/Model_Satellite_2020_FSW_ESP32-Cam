@@ -64,7 +64,6 @@ void setup() {
 
   server.on("/picture", HTTP_GET, [](AsyncWebServerRequest * request) {
 
-    // burada while ile donup stream olarak video atamıyoruz
     if (frame)
       //return the frame buffer back to the driver for reuse
       esp_camera_fb_return(frame);
@@ -80,12 +79,13 @@ void setup() {
     request->send_P(200, "text/plain", telemetry.c_str());
 
   });
-
+  // handle file
   server.on("/file", HTTP_POST, [](AsyncWebServerRequest * request) {
     request->send(200);
 
   }, handleUpload);
-
+  
+  //handle body
   server.on(
     "/command",
     HTTP_POST,
@@ -131,7 +131,7 @@ void setup() {
 
 void loop() {
 
-  /*
+  
   if (Serial.available()) {
     char c = Serial.read();
     if (c == 'c') {
@@ -160,7 +160,7 @@ void loop() {
     }
 
 
-  */
+  
 
 }
 
@@ -184,8 +184,8 @@ void readData(char c) {
 void handleUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
   if (!index) {
     fs::FS &fs = SD_MMC;
-    String f = "/" + filename;
-    UploadFile = fs.open(f.c_str(), FILE_WRITE); // calismaz ise basina / koymayi dene !!!
+    String f = "/" + filename; // '/' karakteri basinda olmali
+    UploadFile = fs.open(f.c_str(), FILE_WRITE);
     //Serial.printf("UploadStart: %s\n", filename.c_str());
   }
   /*
